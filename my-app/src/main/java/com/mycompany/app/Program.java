@@ -23,8 +23,8 @@ class Player {
 class Game {
     public State state;
     public Player player1, player2;
-    public Player cplayer; // текущий игрок
-    public int nmove;  // последний шаг сделанный действующим игроком 
+    public Player cplayer;
+    public int nmove;
     public char symbol;
     public static final int INF = 100;
     public int q;
@@ -37,15 +37,13 @@ class Game {
       player1.symbol='X';
       player2.symbol='O';
       state=State.PLAYING; 
-      board=new char[9];   // текущая доска в игре  
+      board=new char[9];  
       for(int i=0;i<9;i++)
         board[i]=' ';
     }
 
-    // возвращаем состояние игры
     public State checkState(char[] board) 
     {
-      //char symbol=game.symbol;//cplayer.symbol;
       State state=State.PLAYING;
       if ((board[0] == symbol && board[1] == symbol && board[2] == symbol) ||
           (board[3] == symbol && board[4] == symbol && board[5] == symbol) ||
@@ -73,14 +71,12 @@ class Game {
     }
     return state;
   }
-     // сгенерировать возможные ходы
    void generateMoves(char[] board, ArrayList<Integer> move_list) {
     for (int i = 0; i < 9; i++) 
         if (board[i] == ' ') 
             move_list.add(i);
    }
 
-   // оценка позиции
    int evaluatePosition(char[] board, Player player)  
    {
     State state=checkState(board);
@@ -96,7 +92,7 @@ class Game {
     return -1;
    }
 
-   int MiniMax(char[] board, Player player) // выбор наилучшего хода
+   int MiniMax(char[] board, Player player)
    {
     int best_val = -Game.INF, index = 0;
     ArrayList<Integer> move_list=new ArrayList<>();
@@ -283,8 +279,6 @@ class TicTacToePanel extends JPanel implements ActionListener {
    public void actionPerformed(ActionEvent ae) {
       game.player1.move = -1;
       game.player2.move = -1;
-      //System.out.println(game.cplayer.symbol);
-      //System.out.println(((TicTacToeCell)(ae.getSource())).getNum());
 
 
       int i=0;
@@ -326,9 +320,6 @@ class TicTacToePanel extends JPanel implements ActionListener {
         JOptionPane.showMessageDialog(null,"Ничья","Результат", JOptionPane.WARNING_MESSAGE);
         System.exit(0);
       } 
-
-
-
 
    }
 }
