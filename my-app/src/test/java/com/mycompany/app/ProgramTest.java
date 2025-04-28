@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Field;
+import java.awt.Component;
 
 public class ProgramTest {
     private Game game;
@@ -285,7 +286,7 @@ public class ProgramTest {
         assertNotNull(panel);
         assertEquals(9, panel.getComponentCount());
         
-        var cells = panel.getComponents();
+        Component[] cells = panel.getComponents();
         assertTrue(cells[0] instanceof TicTacToeCell);
         assertTrue(cells[8] instanceof TicTacToeCell);
         
@@ -320,7 +321,7 @@ public class ProgramTest {
         TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
         
         try {
-            var gameField = TicTacToePanel.class.getDeclaredField("game");
+            Field gameField = TicTacToePanel.class.getDeclaredField("game");
             gameField.setAccessible(true);
             Game game = (Game)gameField.get(panel);
             
