@@ -227,30 +227,32 @@ class TicTacToeCell extends JButton {
 }
 
 class Utility {
+    public static void print(char[] board) {
+        System.out.println();
+        for (char c : board)
+            System.out.print(c + "-");
+        System.out.println();
+    }
 
-  public static void print(char[] board) {
-    System.out.println();
-        for(int j=0;j<9;j++)
-          System.out.print(board[j]+"-");
+    public static void print(int[] board) {
         System.out.println();
-  }
-  public static void print(int[] board) {
-    System.out.println();
-        for(int j=0;j<9;j++)
-          System.out.print(board[j]+"-");
+        for (int val : board)
+            System.out.print(val + "-");
         System.out.println();
-  }  
-  public static void print(ArrayList<Integer> moves) {
-    System.out.println();
-        for(int j=0;j<moves.size();j++)
-          System.out.print(moves.get(j)+"-");
+    }
+
+    public static void print(ArrayList<Integer> moves) {
         System.out.println();
-  }  
+        for (int move : moves)
+            System.out.print(move + "-");
+        System.out.println();
+    }
 }
+
 
 class TicTacToePanel extends JPanel implements ActionListener {
 
-   private Game game;
+   public Game game;
 
    private void createCell(int num,int x,int y) {
        cells[num]=new TicTacToeCell(num,x,y);
@@ -321,6 +323,7 @@ class TicTacToePanel extends JPanel implements ActionListener {
       } 
 
    }
+   
 }
 
 

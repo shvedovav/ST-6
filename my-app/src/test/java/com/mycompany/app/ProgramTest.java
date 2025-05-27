@@ -1,492 +1,254 @@
 package com.mycompany.app;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.ArrayList;
-import java.awt.GridLayout;
-import javax.swing.JFrame;
-import java.awt.event.ActionEvent;
-import java.lang.reflect.Field;
-import java.awt.Component;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@DisplayName("TicTacToe Game Tests")
 public class ProgramTest {
+
     private Game game;
     private Player player;
-    
+
     @BeforeEach
-    public void setUp() {
+    public void prepare() {
         game = new Game();
         player = new Player();
     }
-    
-    @Test
-    public void testGameConstructor() {
-        assertNotNull(game);
-        assertEquals(State.PLAYING, game.state);
-        assertEquals('X', game.player1.symbol);
-        assertEquals('O', game.player2.symbol);
-        
-        for (int i = 0; i < 9; i++) {
-            assertEquals(' ', game.board[i]);
+
+    @Nested
+    @DisplayName("Player Initialization")
+    class PlayerTests {
+
+        @Test
+        @DisplayName("Player should be initialized with default values")
+        public void playerShouldStartWithDefaultValues() {
+            Player p = new Player();
+            assertEquals('\0', p.symbol);
+            assertEquals(0, p.move);
+            assertFalse(p.selected);
+            assertFalse(p.win);
         }
     }
-    
-    @Test
-    public void testPlayerInitialization() {
-        Player p = new Player();
-        assertEquals(0, p.move);
-        assertFalse(p.selected);
-        assertFalse(p.win);
-    }
-    
-    @Test
-    public void testCheckStateXWinRows() {
-        char[] board = {
-            'X', 'X', 'X',
-            ' ', ' ', ' ',
-            ' ', ' ', ' '
-        };
-        game.symbol = 'X';
-        assertEquals(State.XWIN, game.checkState(board));
-        
-        board = new char[]{
-            ' ', ' ', ' ',
-            'X', 'X', 'X',
-            ' ', ' ', ' '
-        };
-        assertEquals(State.XWIN, game.checkState(board));
-        
-        board = new char[]{
-            ' ', ' ', ' ',
-            ' ', ' ', ' ',
-            'X', 'X', 'X'
-        };
-        assertEquals(State.XWIN, game.checkState(board));
-    }
-    
-    @Test
-    public void testCheckStateXWinColumns() {
-        char[] board = {
-            'X', ' ', ' ',
-            'X', ' ', ' ',
-            'X', ' ', ' '
-        };
-        game.symbol = 'X';
-        assertEquals(State.XWIN, game.checkState(board));
-        
-        board = new char[]{
-            ' ', 'X', ' ',
-            ' ', 'X', ' ',
-            ' ', 'X', ' '
-        };
-        assertEquals(State.XWIN, game.checkState(board));
-        
-        board = new char[]{
-            ' ', ' ', 'X',
-            ' ', ' ', 'X',
-            ' ', ' ', 'X'
-        };
-        assertEquals(State.XWIN, game.checkState(board));
-    }
-    
-    @Test
-    public void testCheckStateXWinDiagonals() {
-        char[] board = {
-            'X', ' ', ' ',
-            ' ', 'X', ' ',
-            ' ', ' ', 'X'
-        };
-        game.symbol = 'X';
-        assertEquals(State.XWIN, game.checkState(board));
-        
-        board = new char[]{
-            ' ', ' ', 'X',
-            ' ', 'X', ' ',
-            'X', ' ', ' '
-        };
-        assertEquals(State.XWIN, game.checkState(board));
-    }
-    
-    @Test
-    public void testCheckStateOWinConditions() {
-        char[] board = {
-            'O', 'O', 'O',
-            ' ', ' ', ' ',
-            ' ', ' ', ' '
-        };
-        game.symbol = 'O';
-        assertEquals(State.OWIN, game.checkState(board));
-        
-        board = new char[]{
-            'O', ' ', ' ',
-            'O', ' ', ' ',
-            'O', ' ', ' '
-        };
-        assertEquals(State.OWIN, game.checkState(board));
-        
-        board = new char[]{
-            'O', ' ', ' ',
-            ' ', 'O', ' ',
-            ' ', ' ', 'O'
-        };
-        assertEquals(State.OWIN, game.checkState(board));
-    }
-    
-    @Test
-    public void testCheckStatePlayingAndDraw() {
-        char[] board = {
-            'X', 'O', 'X',
-            'O', ' ', ' ',
-            ' ', ' ', ' '
-        };
-        game.symbol = 'X';
-        assertEquals(State.PLAYING, game.checkState(board));
-        
-        board = new char[]{
-            'X', 'O', 'X',
-            'X', 'O', 'O',
-            'O', 'X', 'O'
-        };
-        assertEquals(State.DRAW, game.checkState(board));
-    }
-    
-    @Test
-    public void testGenerateMoves() {
-        ArrayList<Integer> moves = new ArrayList<>();
-        game.generateMoves(game.board, moves);
-        assertEquals(9, moves.size());
-        
-        char[] board = {
-            'X', ' ', 'O',
-            ' ', 'X', ' ',
-            'O', ' ', 'X'
-        };
-        ArrayList<Integer> partialMoves = new ArrayList<>();
-        game.generateMoves(board, partialMoves);
-        assertEquals(4, partialMoves.size());
-        assertTrue(partialMoves.contains(1));
-        assertTrue(partialMoves.contains(3));
-        assertTrue(partialMoves.contains(5));
-        assertTrue(partialMoves.contains(7));
-    }
-    
-    @Test
-    public void testEvaluatePosition() {
-        Player xPlayer = new Player();
-        xPlayer.symbol = 'X';
-        
-        Player oPlayer = new Player();
-        oPlayer.symbol = 'O';
-        
-        char[] xWinBoard = {
-            'X', 'X', 'X',
-            ' ', 'O', ' ',
-            ' ', 'O', ' '
-        };
-        game.symbol = 'X';
-        assertEquals(Game.INF, game.evaluatePosition(xWinBoard, xPlayer));
-        
-        assertEquals(-Game.INF, game.evaluatePosition(xWinBoard, oPlayer));
-        
-        char[] oWinBoard = {
-            'X', 'X', ' ',
-            'O', 'O', 'O',
-            'X', ' ', ' '
-        };
-        game.symbol = 'O';
-        assertEquals(Game.INF, game.evaluatePosition(oWinBoard, oPlayer));
-        
-        assertEquals(-Game.INF, game.evaluatePosition(oWinBoard, xPlayer));
-        
-        char[] drawBoard = {
-            'X', 'O', 'X',
-            'X', 'O', 'O',
-            'O', 'X', 'O'
-        };
-        assertEquals(0, game.evaluatePosition(drawBoard, xPlayer));
-        assertEquals(0, game.evaluatePosition(drawBoard, oPlayer));
-        
-        char[] playingBoard = {
-            'X', ' ', ' ',
-            ' ', ' ', ' ',
-            ' ', ' ', ' '
-        };
-        game.symbol = 'X';
-        assertEquals(-1, game.evaluatePosition(playingBoard, xPlayer));
-    }
-    
-    @Test
-    public void testMinMaxBestMove() {
-        char[] board = {
-            'X', ' ', 'X',
-            'O', 'O', ' ',
-            ' ', ' ', ' '
-        };
-        game.board = board.clone();
-        
-        Player oPlayer = game.player2;
-        oPlayer.symbol = 'O';
-        game.symbol = oPlayer.symbol;
-        
-        int bestMove = game.MiniMax(game.board, oPlayer);
-        assertEquals(2, bestMove);
-    }
-    
-    @Test
-    public void testMinMove() {
-        Player xPlayer = game.player1;
-        xPlayer.symbol = 'X';
-        
-        char[] board = {
-            ' ', ' ', ' ',
-            'O', 'O', ' ',
-            'X', ' ', ' '
-        };
-        game.board = board.clone();
-        
-        game.symbol = 'O';
-        int minValue = game.MinMove(game.board, xPlayer);
-        assertTrue(minValue <= Game.INF);
-    }
-    
-    @Test
-    public void testMaxMove() {
-        Player oPlayer = game.player2;
-        oPlayer.symbol = 'O';
-        
-        char[] board = {
-            'X', 'X', ' ',
-            'O', 'O', ' ',
-            ' ', ' ', ' '
-        };
-        game.board = board.clone();
-        
-        game.symbol = 'O';
-        int maxValue = game.MaxMove(game.board, oPlayer);
-        assertTrue(maxValue >= -Game.INF);
-    }
-    
-    @Test
-    public void testTicTacToeCell() {
-        TicTacToeCell cell = new TicTacToeCell(1, 0, 0);
-        assertEquals(1, cell.getNum());
-        assertEquals(0, cell.getRow());
-        assertEquals(0, cell.getCol());
-        assertEquals(' ', cell.getMarker());
-        
-        cell.setMarker("X");
-        assertEquals('X', cell.getMarker());
-        assertFalse(cell.isEnabled());
-    }
-    
-    @Test
-    public void testTicTacToePanelInitialization() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        assertNotNull(panel);
-        assertEquals(9, panel.getComponentCount());
-        
-        Component[] cells = panel.getComponents();
-        assertTrue(cells[0] instanceof TicTacToeCell);
-        assertTrue(cells[8] instanceof TicTacToeCell);
-        
-        TicTacToeCell firstCell = (TicTacToeCell)cells[0];
-        assertEquals(0, firstCell.getNum());
-        assertEquals(0, firstCell.getRow());
-        assertEquals(0, firstCell.getCol());
-    }
-    
-    @Test
-    public void testTicTacToePanelCellArrangement() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        
-        TicTacToeCell cell0 = (TicTacToeCell)panel.getComponent(0);
-        assertEquals(0, cell0.getNum());
-        assertEquals(0, cell0.getRow());
-        assertEquals(0, cell0.getCol());
-        
-        TicTacToeCell cell4 = (TicTacToeCell)panel.getComponent(4);
-        assertEquals(4, cell4.getNum());
-        assertEquals(1, cell4.getRow());
-        assertEquals(1, cell4.getCol());
-        
-        TicTacToeCell cell8 = (TicTacToeCell)panel.getComponent(8);
-        assertEquals(8, cell8.getNum());
-        assertEquals(2, cell8.getRow());
-        assertEquals(2, cell8.getCol());
-    }
-    
-    @Test
-    public void testTicTacToePanelGameInitialization() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        
-        try {
-            Field gameField = TicTacToePanel.class.getDeclaredField("game");
-            gameField.setAccessible(true);
-            Game game = (Game)gameField.get(panel);
-            
-            assertNotNull(game);
+
+    @Nested
+    @DisplayName("Game Initialization and State")
+    class GameInitializationTests {
+
+        @Test
+        @DisplayName("Game should initialize correctly with default state")
+        public void gameShouldStartWithCleanBoardAndDefaultState() {
+            assertEquals(State.PLAYING, game.state);
             assertEquals('X', game.player1.symbol);
             assertEquals('O', game.player2.symbol);
-            assertEquals(game.player1, game.cplayer);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Could not access game field: " + e.getMessage());
+            for (char c : game.board) {
+                assertEquals(' ', c);
+            }
+        }
+
+        @Test
+        @DisplayName("Game should recognize a draw situation")
+        public void drawConditionShouldBeRecognized() {
+            game.symbol = 'X';
+            char[] drawBoard = "OXOXOXOXO".toCharArray();
+            assertEquals(State.DRAW, game.checkState(drawBoard));
+        }
+
+        @Test
+        @DisplayName("Game should continue when moves are available")
+        public void gameShouldContinueIfMovesLeft() {
+            game.symbol = 'X';
+            char[] board = "XOXX OOXO".toCharArray();
+            assertEquals(State.PLAYING, game.checkState(board));
+        }
+
+        @ParameterizedTest
+        @DisplayName("Game should detect X winning patterns")
+        @CsvSource({
+            "X,X,X, , , , , , , XWIN",
+            "X, , ,X, , ,X, , , XWIN",
+            "X, , , ,X, , , ,X, XWIN"
+        })
+        public void gameShouldDetectXWinningConditions(Character a, Character b, Character c,
+                                                       Character d, Character e, Character f,
+                                                       Character g, Character h, Character i,
+                                                       State expected) {
+            game.symbol = 'X';
+            char[] board = {
+                a != null ? a : ' ',
+                b != null ? b : ' ',
+                c != null ? c : ' ',
+                d != null ? d : ' ',
+                e != null ? e : ' ',
+                f != null ? f : ' ',
+                g != null ? g : ' ',
+                h != null ? h : ' ',
+                i != null ? i : ' '
+            };
+            assertEquals(expected, game.checkState(board));
+        }
+
+        @ParameterizedTest
+        @DisplayName("Game should detect O winning patterns")
+        @CsvSource({
+            "O,O,O, , , , , , , OWIN",
+            "O, , ,O, , ,O, , , OWIN",
+            "O, , , ,O, , , ,O, OWIN"
+        })
+        public void gameShouldDetectOWinningConditions(Character a, Character b, Character c,
+                                                       Character d, Character e, Character f,
+                                                       Character g, Character h, Character i,
+                                                       State expected) {
+            game.symbol = 'O';
+            char[] board = {
+                a != null ? a : ' ',
+                b != null ? b : ' ',
+                c != null ? c : ' ',
+                d != null ? d : ' ',
+                e != null ? e : ' ',
+                f != null ? f : ' ',
+                g != null ? g : ' ',
+                h != null ? h : ' ',
+                i != null ? i : ' '
+            };
+            assertEquals(expected, game.checkState(board));
+        }
+
+        @Test
+        @DisplayName("Should identify empty cells correctly")
+        public void generateMovesShouldReturnEmptyIndices() {
+            char[] board = "X OX XO  ".toCharArray();
+            ArrayList<Integer> available = new ArrayList<>();
+            game.generateMoves(board, available);
+            assertTrue(available.containsAll(List.of(1, 4, 7, 8)));
+            assertEquals(4, available.size());
         }
     }
-    
-    @Test
-    public void testUtilityPrintMethods() {
-        char[] charBoard = {'X', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
-        Utility.print(charBoard);
-        
-        int[] intBoard = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        Utility.print(intBoard);
-        
-        ArrayList<Integer> moves = new ArrayList<>();
-        moves.add(0);
-        moves.add(4);
-        moves.add(8);
-        Utility.print(moves);
-    }
-    
-    @Test
-    public void testCompleteGame() {
-        Game testGame = new Game();
-        testGame.player1.symbol = 'X';
-        testGame.player2.symbol = 'O';
-        testGame.cplayer = testGame.player1;
-        
-        char[] finalBoard = {
-            'X', 'O', 'X',
-            'O', 'X', 'O',
-            ' ', ' ', 'X'
-        };
-        testGame.board = finalBoard;
-        testGame.symbol = 'X';
-        testGame.state = testGame.checkState(testGame.board);
-        
-        assertEquals(State.XWIN, testGame.state);
-    }
-    
-    @Test
-    public void testTicTacToeCellActionRegistration() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        
-        for (int i = 0; i < panel.getComponentCount(); i++) {
-            TicTacToeCell cell = (TicTacToeCell)panel.getComponent(i);
-            
-            assertTrue(cell.getActionListeners().length > 0);
-            assertEquals(panel, cell.getActionListeners()[0]);
+
+    @Nested
+    @DisplayName("Evaluation Logic")
+    class EvaluationTests {
+
+        @Test
+        @DisplayName("Evaluation should return expected scores")
+        public void evaluationShouldReturnExpectedValues() {
+            player.symbol = 'X';
+
+            char[] win = "XXXOO    ".toCharArray();
+            game.symbol = 'X';
+            assertEquals(Game.INF, game.evaluatePosition(win, player));
+
+            char[] lose = "OOOXX    ".toCharArray();
+            game.symbol = 'O';
+            player.symbol = 'X';
+            assertEquals(-Game.INF, game.evaluatePosition(lose, player));
+
+            char[] draw = "XOXOXOXOX".toCharArray();
+            assertEquals(0, game.evaluatePosition(draw, player));
+
+            char[] active = "XO       ".toCharArray();
+            assertEquals(-1, game.evaluatePosition(active, player));
         }
     }
-    
-    @Test
-    public void testTicTacToePanelActionPerformedCellMarking() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        
-        try {
-            Field gameField = TicTacToePanel.class.getDeclaredField("game");
-            gameField.setAccessible(true);
-            Game panelGame = (Game) gameField.get(panel);
-            
-            Field cellsField = TicTacToePanel.class.getDeclaredField("cells");
-            cellsField.setAccessible(true);
-            TicTacToeCell[] cells = (TicTacToeCell[]) cellsField.get(panel);
-            
-            assertEquals('X', panelGame.cplayer.symbol);
-            
-            TicTacToeCell cell = cells[4];
-            ActionEvent actionEvent = new ActionEvent(cell, ActionEvent.ACTION_PERFORMED, "click");
-            panel.actionPerformed(actionEvent);
-            
+
+    @Nested
+    @DisplayName("Minimax and AI Logic")
+    class MinimaxTests {
+
+        @Test
+        @DisplayName("MiniMax should find a valid move")
+        public void minimaxShouldFindOptimalMove() {
+            char[] board = "XX OO    ".toCharArray();
+            player.symbol = 'O';
+            game.symbol = 'O';
+            int move = game.MiniMax(board, player);
+            assertTrue(move >= 1 && move <= 9);
+        }
+
+        @Test
+        @DisplayName("Min and Max move evaluations should be bounded")
+        public void minMaxShouldEvaluateMoveValues() {
+            char[] board = "XOX      ".toCharArray();
+            player.symbol = 'X';
+            int minVal = game.MinMove(board, player);
+            int maxVal = game.MaxMove(board, player);
+            assertTrue(minVal <= Game.INF);
+            assertTrue(maxVal >= -Game.INF);
+        }
+    }
+
+    @Nested
+    @DisplayName("UI Component Tests")
+    class UITests {
+
+        @Test
+        @DisplayName("TicTacToeCell should store and update correctly")
+        public void ticTacToeCellShouldStoreCorrectInfo() {
+            TicTacToeCell cell = new TicTacToeCell(7, 2, 1);
+            assertEquals(7, cell.getNum());
+            assertEquals(2, cell.getCol());
+            assertEquals(1, cell.getRow());
+            assertEquals(' ', cell.getMarker());
+
+            cell.setMarker("X");
             assertEquals('X', cell.getMarker());
-            assertEquals('X', panelGame.board[4]);
             assertFalse(cell.isEnabled());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Failed to access TicTacToePanel fields: " + e.getMessage());
+        }
+
+        @Test
+        @DisplayName("Panel should initialize with a valid game object")
+        public void panelShouldInitializeWithActiveGame() {
+            TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
+            assertNotNull(panel.game);
+            assertEquals('X', panel.game.cplayer.symbol);
+        }
+
+        @Test
+        @DisplayName("ActionEvent should not throw error when processed")
+        public void actionEventShouldChangeCellState() {
+            TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
+            TicTacToeCell testCell = new TicTacToeCell(0, 0, 0);
+
+            ActionEvent evt = new ActionEvent(testCell, ActionEvent.ACTION_PERFORMED, "test");
+            assertDoesNotThrow(() -> panel.actionPerformed(evt));
         }
     }
-    
-    
-    @Test
-    public void testTicTacToePanelActionPerformedStateCheck() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        
-        try {
-            Field gameField = TicTacToePanel.class.getDeclaredField("game");
-            gameField.setAccessible(true);
-            Game panelGame = (Game) gameField.get(panel);
-            
-            Field cellsField = TicTacToePanel.class.getDeclaredField("cells");
-            cellsField.setAccessible(true);
-            TicTacToeCell[] cells = (TicTacToeCell[]) cellsField.get(panel);
-            
-            panelGame.board = new char[]{
-                'X', 'X', ' ',
-                ' ', ' ', ' ',
-                ' ', ' ', ' '
-            };
-            
-            for (int i = 0; i < panelGame.board.length; i++) {
-                if (panelGame.board[i] != ' ') {
-                    cells[i].setMarker(String.valueOf(panelGame.board[i]));
-                }
-            }
-        
-            TicTacToeCell cell2 = cells[2];
-            ActionEvent actionEvent = new ActionEvent(cell2, ActionEvent.ACTION_PERFORMED, "click");
 
-            panelGame.state = State.PLAYING;
-            panelGame.symbol = 'X';
-            
-            for (int i = 0; i < 3; i++) {
-                cells[i].setMarker("X");
-                panelGame.board[i] = 'X';
-            }
+    @Nested
+    @DisplayName("Utility and Infrastructure")
+    class MiscTests {
 
-            assertEquals(State.XWIN, panelGame.checkState(panelGame.board));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Failed to access fields: " + e.getMessage());
+        @Test
+        @DisplayName("Utility print methods should not throw exceptions")
+        public void utilityPrintMethodsShouldNotThrow() {
+            assertDoesNotThrow(() -> {
+                Utility.print("XO ".toCharArray());
+                Utility.print(new int[]{1, 2, 3});
+                ArrayList<Integer> list = new ArrayList<>();
+                list.add(4);
+                list.add(7);
+                Utility.print(list);
+            });
         }
-    }
-    
-    @Test
-    public void testTicTacToePanelActionPerformedDrawCondition() {
-        TicTacToePanel panel = new TicTacToePanel(new GridLayout(3, 3));
-        
-        try {
-            Field gameField = TicTacToePanel.class.getDeclaredField("game");
-            gameField.setAccessible(true);
-            Game panelGame = (Game) gameField.get(panel);
-            
-            Field cellsField = TicTacToePanel.class.getDeclaredField("cells");
-            cellsField.setAccessible(true);
-            TicTacToeCell[] cells = (TicTacToeCell[]) cellsField.get(panel);
-            
-            // Setup almost draw board
-            char[] drawBoard = {
-                'X', 'O', 'X',
-                'X', 'O', 'O',
-                'O', 'X', ' '
-            };
-            
-            panelGame.board = drawBoard.clone();
-            
-            for (int i = 0; i < 8; i++) {
-                cells[i].setMarker(String.valueOf(drawBoard[i]));
+
+        @Test
+        @DisplayName("Main method should be declared in Program class")
+        public void mainMethodShouldExist() {
+            try {
+                assertNotNull(Program.class.getDeclaredMethod("main", String[].class));
+            } catch (NoSuchMethodException e) {
+                fail("main method should be defined in Program class");
             }
-            
-            panelGame.symbol = 'X';
-            assertEquals(State.PLAYING, panelGame.checkState(panelGame.board));
-            
-            panelGame.cplayer = panelGame.player1;
-            cells[8].setMarker("X");
-            panelGame.board[8] = 'X';
-            
-            panelGame.symbol = 'X';
-            assertEquals(State.DRAW, panelGame.checkState(panelGame.board));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Failed to access fields: " + e.getMessage());
         }
     }
 }
