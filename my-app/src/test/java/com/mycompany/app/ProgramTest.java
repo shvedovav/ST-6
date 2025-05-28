@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -130,7 +130,7 @@ public class ProgramTest {
             char[] board = "X OX XO  ".toCharArray();
             ArrayList<Integer> available = new ArrayList<>();
             game.generateMoves(board, available);
-            assertTrue(available.containsAll(List.of(1, 4, 7, 8)));
+            assertTrue(available.containsAll(Arrays.asList(1,4,7,8)));
             assertEquals(4, available.size());
         }
     }
